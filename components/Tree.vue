@@ -171,40 +171,26 @@ const renderContent = (
     }),
     h('input', {
       value: data.label,
-      onInput: (event) => {
+      onInput: (event: InputEvent) => {
         // console.log(event.target.value);
         // console.log(data);
         event.stopPropagation();
-        data.label = event.target.value;
+        data.label = (event.target as HTMLInputElement).value;
       },
-      onclick: (event) => {
+      onclick: (event: Event) => {
         // console.log(event.target.value);
         // console.log(data);
         event.stopPropagation();
+      },
+      onkeydown: (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          append(data);
+        }
+        if (event.key === 'Delete') {
+          remove(node, data);
+        }
       },
     }),
-    h(
-      'span',
-      null,
-      h(
-        'a',
-        {
-          onClick: (event) => {
-            event.stopPropagation();
-            append(data);
-      },
-        },
-        '添加 '
-      ),
-      h(
-        'a',
-        {
-          style: 'margin-left: 8px;',
-          onClick: (event) => {event.stopPropagation();remove(node, data);}
-        },
-        '删除'
-      )
-    )
   );
 };
 </script>
