@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url('/fonts/HarmonyOS_Sans_Condensed_Light.ttf')
+  }
+  
+  * {
+    font-family: 'MyFont';
+  }
+
+  body span a{
+    font-family: 'MyFont' !important;
+  }
