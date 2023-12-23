@@ -3,7 +3,7 @@
 
 <template>
   <main>
-    <slot />
+    <slot/>
     <ClientOnly>
       <div
         v-if="$pwa?.offlineReady || $pwa?.needRefresh"
@@ -46,9 +46,27 @@
         </button>
       </div>
     </ClientOnly>
+  <el-button class="save-bt" type="primary" @click="openFullScreen"> Save </el-button>
   </main>
 </template>
 
+<script setup>
+import { ref } from 'vue'
+import { ElLoading } from 'element-plus'
+const website = useWebsiteStore();
+
+const openFullScreen = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
+  setTimeout(() => {
+    website.save();
+    loading.close();
+  }, 2000)
+}
+</script>
 <style>
 .pwa-toast {
   position: fixed;
@@ -71,5 +89,18 @@
   margin-right: 5px;
   border-radius: 2px;
   padding: 3px 10px;
+}
+
+.save-bt{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  margin: 16px;
+  padding: 12px;
+  border: 1px solid #8885;
+  border-radius: 4px;
+  z-index: 1;
+  text-align: left;
+  box-shadow: 3px 4px 5px 0 #8885;
 }
 </style>

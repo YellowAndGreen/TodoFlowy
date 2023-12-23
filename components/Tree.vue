@@ -97,6 +97,48 @@ const append = (data_node: Tree) => {
   data.value = [...data.value]
 }
 
+const appendSibling = (data_node: Tree) => {
+  // 定义 findParent 函数
+  const findParent = (node: Tree, target: Tree): Tree | null => {
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        if (node.children[i] === target) {
+          return node;
+        } else {
+          const parent = findParent(node.children[i], target);
+          if (parent) {
+            return parent;
+          }
+        }
+      }
+    }
+    return null;
+  }
+  // 使用 findParent 函数找到 data_node 的父节点
+  let parent_node = null;
+  for (let i = 0; i < data.value.length; i++) {
+    parent_node = findParent(data.value[i], data_node);
+    if (parent_node) {
+      break;
+    }
+  }
+  // 创建新节点
+  const newSibling = { id: id++, label: '', children: [] }
+  if (parent_node) {
+    // 如果找到了父节点，就在当前节点后添加一个平行节点
+    if (!parent_node.children) {
+      parent_node.children = []
+    }
+    const index = parent_node.children.indexOf(data_node)
+    parent_node.children.splice(index + 1, 0, newSibling)
+  } else {
+    // 如果没有找到父节点，就在子数组的当前节点后面添加一个新节点
+    const index = data.value.indexOf(data_node);
+    data.value.splice(index + 1, 0, newSibling);
+  }
+  data.value = [...data.value]
+}
+
 const remove = (node: Node, data_node: Tree) => {
   const parent = node.parent
   const children: Tree[] = parent.data.children || parent.data
@@ -105,64 +147,56 @@ const remove = (node: Node, data_node: Tree) => {
   data.value = [...data.value]
 }
 
+const findPrevious = (node: Node, data_node: Tree) => {
+  const parent = node.parent;
+  const children: Tree[] = parent.data.children || parent.data;
+  // 找到当前节点在子节点列表中的位置
+  const currentIndex = children.findIndex((d) => d.id === data_node.id);
+  // 检查是否存在上一个节点
+  if (currentIndex > 0) {
+    // 返回上一个节点的 data
+    return children[currentIndex - 1];
+  } else {
+    // 如果不存在上一个节点，返回 null
+    return null;
+  }
+};
+
+
 interface Tree {
   id: number
   label: string
   children?: Tree[]
 }
 let id = 1000
+const website = useWebsiteStore();
 
-const data = ref<Tree[]>([
-  {
-    id: 1,
-    label: 'Level one 1',
-    children: [
-      {
-        id: 4,
-        label: 'Level two 1-1',
-        children: [
-          {
-            id: 9,
-            label: 'Level three 1-1-1',
-          },
-          {
-            id: 10,
-            label: 'Level three 1-1-2',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    label: 'Level one 2',
-    children: [
-      {
-        id: 5,
-        label: 'Level two 2-1',
-      },
-      {
-        id: 6,
-        label: 'Level two 2-2',
-      },
-    ],
-  },
-  {
-    id: 3,
-    label: 'Level one 3',
-    children: [
-      {
-        id: 7,
-        label: 'Level two 3-1',
-      },
-      {
-        id: 8,
-        label: 'Level two 3-2',
-      },
-    ],
-  },
-]);
+const data = ref<Tree[]>(website.data)
+// console.log(data2)
 
+// const data = ref<Tree[]>([
+//   {
+//     id: 1,
+//     label: 'Level one 1',
+//     children: [
+//       {
+//         id: 4,
+//         label: 'Level two 1-1',
+//         children: [
+//           {
+//             id: 9,
+//             label: 'Level three 1-1-1',
+//           },
+//           {
+//             id: 10,
+//             label: 'Level three 1-1-2',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+// ]);
+// console.log(data)
 const renderContent = (
   h,
   {
@@ -175,7 +209,6 @@ const renderContent = (
     store: Node['store'];
   }
 ) => {
-
   return h(
     'span',
     {
@@ -186,6 +219,7 @@ const renderContent = (
     }),
     h('input', {
       value: data.label,
+      ref:'inputs',
       // autosize:true,
       onInput: (event: InputEvent) => {
         event.stopPropagation();
@@ -196,9 +230,16 @@ const renderContent = (
       },
       onkeydown: (event: KeyboardEvent) => {
         if (event.key === 'Enter') {
-          append(data);
+          appendSibling(data);
         }
         if (event.key === 'Delete') {
+          remove(node, data);
+        }
+        if(data.label==''&&event.key === 'Backspace'){
+          // 检查data.label是否为空且按下了backspace，若是则删除
+          console.log(findPrevious(node,data));
+          // TODO:光标移动到上一个节点
+          // getNode(findPrevious(node, data)).focus();
           remove(node, data);
         }
       },
@@ -214,12 +255,11 @@ onMounted(() => {
   if (savedData) {
     data.value = JSON.parse(savedData);
   }
-
   // 每隔一分钟自动保存数据
   intervalId = setInterval(() => {
     console.log("保存数据");
     localStorage.setItem('treeData', JSON.stringify(data.value));
-  }, 1000); // 60000 毫秒等于一分钟
+  }, 60000); // 60000 毫秒等于一分钟
 });
 
 onBeforeUnmount(() => {
@@ -227,6 +267,32 @@ onBeforeUnmount(() => {
   clearInterval(intervalId);
   localStorage.setItem('treeData', JSON.stringify(data.value));
 });
+
+// 自动焦点
+// 创建一个观察器实例
+import { nextTick } from 'vue';
+let observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'childList') {
+      mutation.addedNodes.forEach((node) => {
+        // 检查节点是否为 Element 类型
+        if (node instanceof HTMLElement && node.className.includes('el-tree-node')) {
+          // 确保新元素已经渲染完成
+          nextTick().then(() => {
+            // 将光标移动到新元素上
+            // console.log("work!")
+            node.querySelector('input').focus();
+          });
+        }
+      });
+    }
+  });
+});
+// 配置观察选项：
+let config = { attributes: true, childList: true, subtree: true };
+// 传入目标节点和观察选项
+observer.observe(document.body, config);
+
 </script>
 
 <style>

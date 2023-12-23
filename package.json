@@ -13,9 +13,11 @@
     "@element-plus/icons-vue": "^2.3.1",
     "@element-plus/nuxt": "^1.0.7",
     "@nuxt/devtools": "latest",
+    "@pinia/nuxt": "^0.5.1",
     "@vite-pwa/nuxt": "^0.3.6",
     "element-plus": "^2.4.4",
     "nuxt": "^3.8.2",
+    "pinia": "^2.1.7",
     "vue": "^3.3.12",
     "vue-router": "^4.2.5"
   }

@@ -1,9 +1,10 @@
 
 
 export default defineNuxtConfig({
+  ssr: false,
   devtools: { enabled: true },
   modules: [
-    '@element-plus/nuxt','@vite-pwa/nuxt'
+    '@element-plus/nuxt','@vite-pwa/nuxt','@pinia/nuxt',
   ],
   elementPlus: {
     // 配置选项
