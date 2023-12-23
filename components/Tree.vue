@@ -171,7 +171,28 @@ interface Tree {
 let id = 1000
 const website = useWebsiteStore();
 
-const data = ref<Tree[]>(website.data)
+const data = ref<Tree[]>([
+            {
+              id: 1,
+              label: 'Level one 1',
+              children: [
+                {
+                  id: 4,
+                  label: 'Level two 1-1',
+                  children: [
+                    {
+                      id: 9,
+                      label: 'Level three 1-1-1',
+                    },
+                    {
+                      id: 10,
+                      label: 'Level three 1-1-2',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],)
 
 const renderContent = (
   h,
