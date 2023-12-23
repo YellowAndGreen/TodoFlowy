@@ -1,5 +1,8 @@
 <template>
+  <el-input v-model="filterText" placeholder="Filter keyword" />
   <el-tree
+    ref="treeRef"
+    :filter-node-method="filterNode"
     :allow-drop="allowDrop"
     :allow-drag="allowDrag"
     :data="data"
@@ -25,6 +28,18 @@ import type {
 } from 'element-plus/es/components/tree/src/tree.type';
 import { ElIcon } from 'element-plus'
 import { CollectionTag } from '@element-plus/icons-vue'
+
+const filterText = ref('')
+const treeRef = ref()
+
+watch(filterText, (val) => {
+  treeRef.value!.filter(val)
+})
+
+const filterNode = (value: string, data: Tree) => {
+  if (!value) return true
+  return data.label.includes(value)
+}
 
 const handleDragStart = (node: Node, ev: DragEvents) => {
   console.log('drag start', node);
@@ -171,15 +186,12 @@ const renderContent = (
     }),
     h('input', {
       value: data.label,
+      // autosize:true,
       onInput: (event: InputEvent) => {
-        // console.log(event.target.value);
-        // console.log(data);
         event.stopPropagation();
         data.label = (event.target as HTMLInputElement).value;
       },
       onclick: (event: Event) => {
-        // console.log(event.target.value);
-        // console.log(data);
         event.stopPropagation();
       },
       onkeydown: (event: KeyboardEvent) => {
@@ -193,6 +205,28 @@ const renderContent = (
     }),
   );
 };
+
+// 持久化
+let intervalId: ReturnType<typeof setInterval>;
+
+onMounted(() => {
+  const savedData = localStorage.getItem('treeData');
+  if (savedData) {
+    data.value = JSON.parse(savedData);
+  }
+
+  // 每隔一分钟自动保存数据
+  intervalId = setInterval(() => {
+    console.log("保存数据");
+    localStorage.setItem('treeData', JSON.stringify(data.value));
+  }, 1000); // 60000 毫秒等于一分钟
+});
+
+onBeforeUnmount(() => {
+  // 组件卸载前清除定时器并保存数据
+  clearInterval(intervalId);
+  localStorage.setItem('treeData', JSON.stringify(data.value));
+});
 </script>
 
 <style>
@@ -210,14 +244,16 @@ input {
 
 
 textarea {
+  resize: none;
   background-color: transparent; /* 移除背景色 */
   border: none; /* 移除边框 */
   outline: none; /* 移除焦点时的轮廓 */
   box-shadow: none; /* 移除阴影 */
   padding: 0; /* 移除内边距 */
   margin: 0; /* 移除外边距 */
+  flex: 1;
+  display: flex;
 }
-
 
 .custom-tree-node {
   flex: 1;
@@ -229,7 +265,8 @@ textarea {
 }
 
 .el-icon{
-  padding-right: 2%;
-  
+  padding-right: 1%;
+  /* display: flex;
+  align-items: left; */
 }
 </style>

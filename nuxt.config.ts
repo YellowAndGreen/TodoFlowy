@@ -8,11 +8,17 @@ export default defineNuxtConfig({
   elementPlus: {
     // 配置选项
   },
+  app: {
+    head: {
+      title: 'TodoFlowy'
+    }
+  },
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Nuxt Vite PWA',
-      short_name: 'NuxtVitePWA',
+      name: 'TodoFlowyPWA',
+      short_name: 'TodoFlowy',
+      description: 'This is an awesome app', // 应用描述
       theme_color: '#ffffff',
       icons: [
         {
@@ -35,12 +41,16 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      runtimeCaching: [
+        {
+          urlPattern: 'localhost:3000/.*',
+          handler: 'NetworkFirst',
+          method: 'GET'
+        }
+      ],
     },
     client: {
       installPrompt: true,
-      // you don't need to include this: only for testing purposes
-      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
-      periodicSyncForUpdates: 20,
     },
     devOptions: {
       enabled: true,
