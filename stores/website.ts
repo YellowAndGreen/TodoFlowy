@@ -6,7 +6,7 @@ interface Tree {
 
 export const useWebsiteStore = defineStore('websiteStore', {
     state: () => ({
-        data: ref<Tree[]>([
+        data: [
             {
               id: 1,
               label: 'Level one 1',
@@ -27,10 +27,11 @@ export const useWebsiteStore = defineStore('websiteStore', {
                 },
               ],
             },
-          ]),
+          ],
     }),
     actions: {
       save() {
+        console.log("将保存数据为：")
         console.log(JSON.stringify(this.data));
         localStorage.setItem('treeData', JSON.stringify(this.data));
       }

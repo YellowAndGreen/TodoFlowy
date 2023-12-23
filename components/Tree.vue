@@ -172,31 +172,7 @@ let id = 1000
 const website = useWebsiteStore();
 
 const data = ref<Tree[]>(website.data)
-// console.log(data2)
 
-// const data = ref<Tree[]>([
-//   {
-//     id: 1,
-//     label: 'Level one 1',
-//     children: [
-//       {
-//         id: 4,
-//         label: 'Level two 1-1',
-//         children: [
-//           {
-//             id: 9,
-//             label: 'Level three 1-1-1',
-//           },
-//           {
-//             id: 10,
-//             label: 'Level three 1-1-2',
-//           },
-//         ],
-//       },
-//     ],
-//   },
-// ]);
-// console.log(data)
 const renderContent = (
   h,
   {
@@ -252,14 +228,16 @@ let intervalId: ReturnType<typeof setInterval>;
 
 onMounted(() => {
   const savedData = localStorage.getItem('treeData');
+  console.log(savedData);
   if (savedData) {
     data.value = JSON.parse(savedData);
   }
   // 每隔一分钟自动保存数据
   intervalId = setInterval(() => {
-    console.log("保存数据");
+    console.log("定时保存数据：");
+    console.log(JSON.stringify(data.value));
     localStorage.setItem('treeData', JSON.stringify(data.value));
-  }, 60000); // 60000 毫秒等于一分钟
+  }, 5000); // 60000 毫秒等于一分钟
 });
 
 onBeforeUnmount(() => {
